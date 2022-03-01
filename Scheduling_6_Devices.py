@@ -58,15 +58,15 @@ def mutation(P_mutate, pop, ranges):
             x = randint(0,len(pop)-1)
             y = randint(0,len(pop)-1)
             #pick the gen x,y in pop to be mutate
-            # pop[x][y] = randint(low=ranges[y, 0], high=ranges[y, 1])
-            pop[x][y] = randint(low=1, high=25)
+            pop[x][y] = randint(low=ranges[y, 0], high=ranges[y, 1])
+            # pop[x][y] = randint(low=1, high=25)
             
             
     return pop
 
 if __name__=='__main__' :
 
-    # Parameter Inputs
+    ## Parameter Inputs
     # num = 6
     ranges = np.array([[10,25], [8,23], [6,21], [4,19], [2,17], [1,15]]) 
     value = [600,500,400,300,200,100]
