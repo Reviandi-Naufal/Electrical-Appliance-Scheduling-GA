@@ -16,7 +16,7 @@ def cal_threshold(pop, thres, weight):
     for chrom in pop:
         for gen_idx in range(len(chrom)):
             if np.sum(weight*chrom) > thres:
-                chrom[~gen_idx]=0
+                chrom[~gen_idx]= 0
             else:
                 break
     return pop
@@ -92,26 +92,32 @@ def mutation(P_mutate, offspring_crossover, num_mutations=12):
 if __name__=='__main__' :
 
     ##Parameter Inputs
-    num_pop = 6
+    num_pop = 10
     ##Time Interval Possibilities for each appliance
     #-----------------------------------------------------------------------
     #ranges = np.array([[10,25], [8,23], [6,21], [4,19], [2,17], [1,15]])
     #ranges = np.array([[20,25], [16,21], [12,17], [8,13], [4,9], [1,5]])
-    ranges = np.array([[16,24], [16,24], [8,16], [8,16], [1,8], [1,8]])
+    ranges = np.array([[16,25], [16,25], [16,24], [8,16], [8,16], [8,16], [1,8], [1,8], [1,8], [1,8]])
+    
+    #Appliance Input Data
     #-----------------------------------------------------------------------
-    value = [600,500,400,300,200,100]
-    Power = [0.1, 0.007, 0.035, 0.3, 0.015, 0.015]
-    Pc = 185.12
+    #value = [500, 450, 400, 350, 300, 250, 200, 150, 100, 50]
+    value = [55, 50, 45, 40, 35, 30, 25, 20, 15, 10]
+    Power = [0.6, 0.3, 0.45, 0.011, 0.27, 0.35, 0.08, 0.35, 0.195, 0.04]
+    Tarif = 1444.7
+    Tagihan = 2000000
+    Pc = Tagihan/Tarif
     days_left = 30
     
-    #calculate necesary input variables
+    #calculate necessary input variables
+    #-----------------------------------------------------------------------
     num_appliances = len(value)
     num_parents_mating = int(num_pop/2)
     pop_size = (num_pop,num_appliances)
     threshold = round(Pc/days_left, 2)
-    # threshold = round(Pc/days_left)
     
-    # Intial population
+    # Initialize first population
+    #-----------------------------------------------------------------------
     new_population = new_pop(ranges, pop_size)
     print(new_population)
     
