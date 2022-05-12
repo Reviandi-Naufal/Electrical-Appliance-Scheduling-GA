@@ -12,6 +12,9 @@ class Device():
         self.name = ""
         # self.clock = clock*3600 #convert time in hours to seconds
         self.time_scheduled = 0
+        self.second = 0
+        self.minute = 0
+        self.hour = 0
         self.time_used = 0
         self.status = 0
     
@@ -27,11 +30,16 @@ class Device():
         return self.time_scheduled
     
     def get_time_used(self):
+        self.minute, self.second = divmod(self.time_used, 60)
+        self.hour, self.minute = divmod(self.minute, 60)
+        return self.hour, self.minute, self.second
+    
+    def hour_time_used(self):
         return self.time_used
     
     def set_time_used(self):
         self.time_used += 1
-    
+        
     def get_status(self):
         return self.status
     
@@ -40,8 +48,8 @@ class Device():
         
     def Display(self):
         print(f"Device Name               : {self.name}")
-        print(f"Time Scehduled for Device : {self.time_scheduled}")
-        print(f"Time Used by Device       : {self.time_used}")
+        print(f"Time Scehduled for Device : {self.time_scheduled} detik")
+        print(f"Time Used by Device       : {self.hour} jam, {self.minute} menit, {self.second} detik")
         print(f"Device State              : {self.status}")
 
 if __name__ == '__main__' :
@@ -71,13 +79,16 @@ if __name__ == '__main__' :
         endSys = monotonic()
         
         for device in range(len(save_dev)):
+            
             if round(endSys - startSys) == 8 and device == 6:
                 save_dev[device].set_status(0)
+                save_dev[device].get_time_used()
                 print(save_dev[device].get_name(), "is OFF")
                 counter -= 1
                 
-            elif save_dev[device].get_time_used() == save_dev[device].get_time_scheduled() and save_dev[device].get_status() != 0:
+            elif save_dev[device].hour_time_used() == save_dev[device].get_time_scheduled() and save_dev[device].get_status() != 0:
                 save_dev[device].set_status(0)
+                save_dev[device].get_time_used()
                 print(save_dev[device].get_name(), "is OFF")
                 counter -= 1
                 
