@@ -7,18 +7,21 @@ Created on Wed Sep  8 13:14:59 2021
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.random import randint, random
+from math import floor
     
 def new_pop(ranges, num_app):
     population = randint(low=ranges[:, 0], high=ranges[:, 1], size=(num_app))
     return population
 
-def cal_threshold(pop, thres, weight):
+def cal_threshold(pop, thres, weight, ranges):
     for chrom in pop:
-        for gen_idx in range(len(chrom)):
-            if np.sum(weight*chrom) > thres:
-                chrom[~gen_idx]= 0
-            else:
-                break
+        while np.sum(weight*chrom) > thres:
+            for gen_idx in reversed(range(0, len(chrom))):
+                #persentase pengurangannya coba di random biar gk looping forever
+                subs = chrom[gen_idx]*(0.08)
+                result = floor(chrom[gen_idx] - subs)
+                if result >= 0:
+                    chrom[gen_idx] = result
     return pop
 
 def cal_pop_fitness(equation_inputs, pop):
@@ -39,12 +42,11 @@ def select_mating_pool(pop, fitness, num_parents):
     return parents
 
 def crossover(pop, offspring_size, Pcross):
-    offspring = np.empty(offspring_size)
-    # The point at which crossover takes place between two parents. Usually, it is at the center.
-    # crossover_point = np.uint8(offspring_size[1]/2)
-    crossover_point = np.uint8(randint(1,len(pop)))
+    offspring = np.zeros(offspring_size)
+    num = len(pop)-1
+    crossover_point = np.uint8(randint(1,num))
                 
-    while random() > Pcross:     
+    while True:
         for k in range(offspring_size[0]):
             # Index of the first parent to mate.
             parent1_idx = k%parents.shape[0]
@@ -54,36 +56,15 @@ def crossover(pop, offspring_size, Pcross):
             offspring[k, 0:crossover_point] = parents[parent1_idx, 0:crossover_point]
             # The new offspring will have its second half of its genes taken from the second parent.
             offspring[k, crossover_point:] = parents[parent2_idx, crossover_point:]
+        if random() < Pcross:
+            break
     return offspring
 
-    # for i in range(len(pop)):
-    #     if random()>Pcross:
-    #         fp = randint(0,len(pop)-1)
-    #         mp = randint(0,len(pop)-1)
-    #         c_point = randint(1,len(pop)-1)
-    
-    #         if fp != mp:
-    #             pop[fp][c_point:],pop[mp][c_point:] = pop[mp][c_point:],pop[fp][c_point:]
-    # return pop
-
-def mutation(P_mutate, offspring_crossover, num_mutations=12):
-    # mutations_counter = np.uint8(offspring_crossover.shape[1] / num_mutations)
-       
-    # for idx in range(offspring_crossover.shape[0]):
-    #     if random() > P_mutate:
-    #         gene_idx = mutations_counter - 1
-    #         for mutation_num in range(num_mutations):
-    #             # The random value to be added to the gene.
-    #             # random_value = randint(1, 25)
-    #             random_value = randint(low=ranges[gene_idx, 0], high=ranges[gene_idx, 1])
-    #             offspring_crossover[idx, gene_idx] = random_value
-    #             gene_idx = gene_idx + mutations_counter
-                
+def mutation(P_mutate, offspring_crossover, num_mutations):
     for chrom in range(offspring_crossover.shape[0]):
         for gen_idx in range(offspring_crossover.shape[1]):
             if random() > P_mutate:
                 ## The random value to be added to the gene.
-                # random_value = randint(1, 25)
                 random_value = randint(low=ranges[gen_idx, 0], high=ranges[gen_idx, 1])
                 offspring_crossover[chrom, gen_idx] = random_value
     
@@ -93,54 +74,61 @@ if __name__=='__main__' :
 
     ##Parameter Inputs
     num_pop = 10
-    ##Time Interval Possibilities for each appliance
-    #-----------------------------------------------------------------------
-    #ranges = np.array([[10,25], [8,23], [6,21], [4,19], [2,17], [1,15]])
-    #ranges = np.array([[20,25], [16,21], [12,17], [8,13], [4,9], [1,5]])
-    ranges = np.array([[16,25], [16,25], [16,24], [8,16], [8,16], [8,16], [1,8], [1,8], [1,8], [1,8]])
-    
-    #Appliance Input Data
-    #-----------------------------------------------------------------------
-    #value = [500, 450, 400, 350, 300, 250, 200, 150, 100, 50]
-    value = [55, 50, 45, 40, 35, 30, 25, 20, 15, 10]
-    Power = [0.6, 0.3, 0.45, 0.011, 0.27, 0.35, 0.08, 0.35, 0.195, 0.04]
     Tarif = 1444.7
-    Tagihan = 2000000
-    Pc = Tagihan/Tarif
+    Tagihan = 1800000
+    Pc = Tagihan/Tarif #Power Cost
     days_left = 30
     
-    #calculate necessary input variables
+    ##Time Interval Possibilities for each appliance
     #-----------------------------------------------------------------------
+    ranges = np.array([[20,25], [20,25], [15,20], [15,20], [10,15], [10,15], [5,10], [5,10], [1,5], [1,5]])
+    #ranges_20 = np.array([[20,25], [20,25], [15,20], [15,20], [10,15], [10,15], [5,10], [5,10], [1,5], [1,5],[1,5], [1,5], [1,5], [1,5], [1,5], [1,5], [1,5], [1,5], [1,5], [1,5]])
+    
+    ## Another Initial Variable
+    #-----------------------------------------------------------------------
+    value = [500, 500, 400, 400, 300, 300, 200, 200, 100, 100]
+    Power = [0.6, 0.3, 0.45, 0.011, 0.27, 0.35, 0.08, 0.35, 0.195, 0.04]
+    #value_20 = [500, 500, 400, 400, 300, 300, 200, 200, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+    #Power_20 = [0.6, 0.3, 0.45, 0.011, 0.27, 0.35, 0.08, 0.35, 0.195, 0.04, 0.4, 0.5, 0.32, 0.23, 0.32, 0.25, 0.37, 0.05, 0.15, 0.125]
+    
+    #calculate necesary input variables
     num_appliances = len(value)
     num_parents_mating = int(num_pop/2)
     pop_size = (num_pop,num_appliances)
     threshold = round(Pc/days_left, 2)
     
-    # Initialize first population
-    #-----------------------------------------------------------------------
+    # Intiate first population
     new_population = new_pop(ranges, pop_size)
+    """for pop in new_population:
+        for i in range(len(pop)):
+            if Power[i] == 0:
+                pop[i] = 0
+    """
     print(new_population)
     
     best_fitness = []
     mean_fitness = []
-    num_generations = 300
+    best_energy = []
+    num_generations = 484
     
     for generation in range(num_generations):
         print("Generation         : ", generation)
         # Measuring the fitness of each chromosome in the population.
         fitness = cal_pop_fitness(value, new_population)
         mean_fit = np.sum(fitness)/num_appliances
-        energy_con = np.sum(new_population*Power, axis=1)
+        energy_con = np.sum(new_population*Power, axis=1) #energy consumption
         print("Fitness                  : {}".format(fitness))
         print("Mean Fitness             : {}".format(int(mean_fit)))
         print("Energy Consumption       : {}".format(energy_con))
         
         best_fitness.append(np.max(fitness))
         mean_fitness.append(mean_fit)
-        best_idx = np.where(fitness == np.max(fitness))
+        best_match_idx = np.where(fitness == np.max(fitness))
+        energy_list = energy_con[best_match_idx]
+        best_energy.append(np.max(energy_list))
         # The best result in the current iteration.
         print("Best Fitness             : ", best_fitness[~0])
-        print("Best Fitness energy usage: ",energy_con[best_idx])
+        print("Best Fitness energy usage: ", best_energy[~0])
         
         # Selecting the best parents in the population for mating.
         parents = select_mating_pool(new_population, fitness, 
@@ -149,51 +137,59 @@ if __name__=='__main__' :
         print(parents)
         
            # Generating next generation using crossover.
-        offspring_crossover = crossover(parents, offspring_size=(pop_size[0]-parents.shape[0], num_appliances), Pcross=0.4)
-        offspring_crossover = cal_threshold(offspring_crossover, threshold, Power)
+        offspring_crossover = crossover(parents, offspring_size=(pop_size[0]-parents.shape[0], num_appliances), Pcross=0.9)
+        offspring_crossover = cal_threshold(offspring_crossover, threshold, Power, ranges)
         print("Crossover")
         print(offspring_crossover)
         
         # Adding some variations to the offspring using mutation.
-        offspring_mutation = mutation(0.4, offspring_crossover, num_appliances)
-        offspring_mutation = cal_threshold(offspring_mutation, threshold, Power)
+        offspring_mutation = mutation(0.7, offspring_crossover, num_appliances)
+        offspring_mutation = cal_threshold(offspring_mutation, threshold, Power, ranges)
         print("Mutation")
         print(offspring_mutation)
         
         new_population[0:parents.shape[0], :] = parents
         new_population[parents.shape[0]:, :] = offspring_mutation
+        """for pop in new_population:
+            for i in range(len(pop)):
+                if Power[i] == 0:
+                    pop[i] = 0
+        """
+        new_population = cal_threshold(new_population, threshold, Power, ranges)
+
         print("New Population")
         print(new_population)
         print("--------------------------------------------------------------")
     
-    # Getting the best solution after iterating finishing all generations.
+    # Getting the best solution after iterating all generations.
     #At first, the fitness is calculated for each solution in the final generation.
     fitness = cal_pop_fitness(value, new_population)
     energy_con = np.sum(new_population*Power, axis=1)
     print("Fitness              : {}".format(fitness))
     print("Energy Consumption   : {}".format(energy_con))
     #-------------------------------------------------------------------------------------------
-    cal_threshold(new_population, threshold, Power)
     fitness = cal_pop_fitness(value, new_population)
     mean_fit = np.sum(fitness)/num_appliances
     
     best_fitness.append(np.max(fitness))
     mean_fitness.append(mean_fit)
-
     best_match_idx = np.where(fitness == np.max(fitness))
+    energy_list = energy_con[best_match_idx]
+    best_energy.append(np.max(energy_list))
     best_solution = new_population[best_match_idx, :]
-    energy_data = energy_con[best_match_idx]
     
     print("===============================================================================")
     print("Fitness     : {}".format(fitness))
     print("Best solution : ", best_solution)
-    print("Best solution fitness : ", fitness[best_match_idx])
-    print("Best solution energy usage: ",energy_con[best_match_idx])
+    print("Best solution fitness : ", best_fitness[~0])
+    print("Best solution energy usage: ", round(best_energy[~0], 2))
     print("Threshold: {}".format(threshold))
     
-    plt.plot(best_fitness, label='Max')
-    plt.plot(mean_fitness, label='Mean')
+    fig, ax = plt.subplots(2, 1)
+    ax[0].plot(best_fitness, label='Max', color='b')
+    ax[1].plot(mean_fitness, label='Mean', color='r')
     plt.xlabel("Iteration")
     plt.ylabel("Fitness")
-    plt.legend()
+    ax[0].legend(loc='best')
+    ax[1].legend(loc='best')
     plt.show()
