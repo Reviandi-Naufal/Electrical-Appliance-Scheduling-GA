@@ -23,7 +23,7 @@ def cal_threshold(pop, thres, weight, ranges):
         while np.sum(weight*chrom) > thres:
             for gen_idx in reversed(range(0, len(chrom))):
                 #persentase pengurangannya coba di random biar gk looping forever
-                subs = chrom[gen_idx]*(0.08)
+                subs = chrom[gen_idx]*(0.09)
                 result = floor(chrom[gen_idx] - subs)
                 if result >= 0:
                     chrom[gen_idx] = result
@@ -78,7 +78,7 @@ def mutation(P_mutate, offspring_crossover, num_mutations):
 if __name__=='__main__' :
     
     ## Define Mysql Engine
-    engine = sqlalchemy.create_engine('mysql+mysqldb://root:MilitenSire360@localhost:3306/appliance_db', pool_pre_ping=True)
+    engine = sqlalchemy.create_engine('mysql+mysqlconnector://root:Ismilelabn209!!@172.23.142.168:3306/db_ismile', pool_pre_ping=True)
     
     # Retrieve data from database 
     billing_data = pd.read_sql_table("billinginput",engine)
@@ -117,6 +117,7 @@ if __name__=='__main__' :
         threshold = round(Pc/days_left, 2)
         
         # Intiate first population
+        print("Inisialisasi Populasi")
         new_population = new_pop(ranges, pop_size)
         """for pop in new_population:
             for i in range(len(pop)):
@@ -220,11 +221,11 @@ if __name__=='__main__' :
     database_df.to_sql(
         name='hasil_penjadwalan', # database table name
         con=engine,
-        if_exists='replace',
+        if_exists='append',
         index=False
     )
     
-    for i in range(len(user_data)):
-        print("----------------------------")
-        user_data[i].Display()
-        print("----------------------------")
+#    for i in range(len(user_data)):
+#        print("----------------------------")
+#        user_data[i].Display()
+#        print("----------------------------")
